@@ -10,6 +10,7 @@ import (
 	"github.com/GDGVIT/configgy-backend/mailer/pkg"
 	"github.com/GDGVIT/configgy-backend/pkg/logger"
 	messagebroker "github.com/GDGVIT/configgy-backend/pkg/message_broker"
+	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -21,6 +22,7 @@ var RootCmd = &cobra.Command{
 	Short: "Start the mailer service",
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := logger.GetInstance()
+		godotenv.Load()
 		ctx, cancel := context.WithCancel(context.Background())
 
 		// Setup a signal channel to handle graceful shutdown

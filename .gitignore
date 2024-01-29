@@ -23,3 +23,5 @@ go.work
 # User defined
 .env
 filestore/
+.vscode/
+__debug*

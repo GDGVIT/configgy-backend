@@ -3,9 +3,12 @@ package usersvc
 import (
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"errors"
+	"log"
 	"math/big"
 	"net/http"
+	"os"
 
 	"github.com/GDGVIT/configgy-backend/api/pkg/api"
 	"github.com/GDGVIT/configgy-backend/pkg/crypto"
@@ -90,25 +93,25 @@ func (svc *UserSvcImpl) SignUp(c context.Context, req api.SignupRequest) (api.Ge
 	var signupResponse api.GenericMessageResponse
 	signupResponse.Message = &message
 
-	// var msg Message
-	// msg.From = "noreply@gmail.com"
-	// msg.To = []string{string(req.Email)}
-	// msg.Subject = "Signup successful"
-	// msg.Body = "Click here to verify your email"
-	// msg.Type = "text"
+	var msg Message
+	msg.From = os.Getenv("SMTP_USERNAME")
+	msg.To = []string{string(req.Email)}
+	msg.Subject = "Signup successful"
+	msg.Body = "Click here to verify your email: http://" + os.Getenv("HOST") + "/v1/user/verify?token=" + userVerificationToken + "&user_pid=" + user.PID
+	msg.Type = "text"
 
-	// exchange := "" // Use an empty exchange for direct exchange (default)
-	// routingKey := "mail"
+	exchange := "" // Use an empty exchange for direct exchange (default)
+	routingKey := "mail"
 
-	// // Publish the message to the queue
-	// body, err := json.Marshal(msg)
-	// if err != nil {
-	// 	log.Fatalf("Failed to marshal message to JSON: %v", err)
-	// }
-	// err = svc.messageBroker.Publish(c, exchange, routingKey, body)
-	// if err != nil {
-	// 	return signupResponse, http.StatusInternalServerError, err
-	// }
+	// Publish the message to the queue
+	body, err := json.Marshal(msg)
+	if err != nil {
+		log.Fatalf("Failed to marshal message to JSON: %v", err)
+	}
+	err = svc.messageBroker.Publish(c, exchange, routingKey, body)
+	if err != nil {
+		return signupResponse, http.StatusInternalServerError, err
+	}
 
 	return signupResponse, http.StatusOK, nil
 }
