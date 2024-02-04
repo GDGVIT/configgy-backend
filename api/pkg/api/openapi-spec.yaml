@@ -1,0 +1,1475 @@
+openapi: 3.0.3
+info:
+  title: Echo Rest API
+  description: A sample REST API
+  termsOfService: https://example.com/terms-of-service
+  license:
+    name: TODO
+    url: TODO
+  version: 1.0.0
+  contact:
+    name: GDSC VIT
+    url: https://github.com/GDGVIT
+servers:
+  - url: http://localhost:3000/v1
+    description: Local development server
+paths:
+  ##########################
+  #### USER ENDPOINTS #####
+  #########################
+  ## Signup
+  "/user/signup":
+    post:
+      summary: User Signup
+      operationId: Signup
+      description: Use this endpoint to sign up a user.
+      requestBody:
+        description: User Signup Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequest"
+      responses:
+        "200":
+          description: Signup response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Signup Response
+                  value:
+                    message: User signed up successfully.
+                error:
+                  summary: Error Signup Response
+                  value:
+                    message: Signup failed. Please check your input.
+
+  # verify user email
+  "/user/verify":
+    get:
+      summary: Verify User Email
+      operationId: VerifyUser
+      description: Use this endpoint to verify a user's email.
+      parameters:
+        - in: query
+          name: token
+          required: true
+          description: Verification Token
+          schema:
+            type: string
+        - in: query
+          name: user_pid
+          required: true
+          description: User PID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Verify User response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Verify User Response
+                  value:
+                    message: User email verified successfully.
+                error:
+                  summary: Error Verify User Response
+                  value:
+                    message: User email verification failed.
+
+  ## Login
+  "/user/login":
+    post:
+      summary: User Login
+      operationId: Login
+      description: Use this endpoint to login a user.
+      requestBody:
+        description: User Login Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              examples:
+                success:
+                  summary: Successful Login Response
+                  value:
+                    message: User logged in successfully.
+                error:
+                  summary: Error Login Response
+                  value:
+                    message: Login failed. Please check your input.
+
+  ##########################
+  #### VAULT ENDPOINTS ####
+  #########################
+
+  ## Create a vault
+  "/vault/create":
+    post:
+      summary: Create a vault
+      operationId: VaultCreate
+      description: Use this endpoint to create a vault
+      requestBody:
+        description: Vault Creation Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VaultCreateRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Vault Creation Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Vault Creation Response
+                  value:
+                    message: Vault was created successfully.
+                error:
+                  summary: Vault Creation Failure Response
+                  value:
+                    message: Vault could not be created.
+
+  ## Get a vault
+  "/vault/{pid}":
+    get:
+      summary: Get a vault by id
+      operationId: VaultGet
+      description: Use this endpoint to get a vault by id
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Vault ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Vault Get Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VaultCreateRequest"
+              examples:
+                success:
+                  summary: Successful Vault Get Response
+                  value:
+                    message: Vault was fetched successfully.
+                error:
+                  summary: Vault Get Failure Response
+                  value:
+                    message: Vault could not be fetched.
+
+  ## Edit a vault
+  "/vault/edit/{pid}":
+    post:
+      summary: Edit a vault
+      operationId: VaultEdit
+      description: Use this endpoint to edit a vault
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Vault ID
+          schema:
+            type: string
+      requestBody:
+        description: Vault Edit Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VaultEditRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Vault Edit Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Vault Edit Response
+                  value:
+                    message: Vault was edited successfully.
+                error:
+                  summary: Vault Edition Failure Response
+                  value:
+                    message: Vault could not be edited.
+  ## Delete a vault
+  "/vault/delete/{pid}":
+    delete:
+      summary: Delete a vault
+      operationId: VaultDelete
+      description: Use this endpoint to delete a vault
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Vault ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Vault Delete Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Vault Delete Response
+                  value:
+                    message: Vault was deleted successfully.
+                error:
+                  summary: Vault Deletion Failure Response
+                  value:
+                    message: Vault could not be deleted.
+
+  ##############################
+  #### CREDENTIAL ENDPOINTS ####
+  ##############################
+
+  ## Create a credential
+  "/credential/create":
+    post:
+      summary: Create a Credential
+      operationId: CredentialCreate
+      description: Use this endpoint to create a credential.
+      requestBody:
+        description: Credential Creation Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CredentialCreateRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Credential Creation Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Credential Creation Response
+                  value:
+                    message: Credential created successfully.
+                error:
+                  summary: Vault Creation Failure Response
+                  value:
+                    message: Credential creation failed.
+
+  ## Get a credential
+  "/credential/{pid}":
+    get:
+      summary: Get a credential by id
+      operationId: CredentialGet
+      description: Use this endpoint to get a credential by id
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Credential ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Credential Get Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CredentialCreateRequest"
+              examples:
+                success:
+                  summary: Successful Credential Get Response
+                  value:
+                    message: Credential was fetched successfully.
+                error:
+                  summary: Credential Get Failure Response
+                  value:
+                    message: Credential could not be fetched.
+
+  ## Delete a credential
+  "/credential/delete/{pid}":
+    delete:
+      summary: Delete a credential
+      operationId: CredentialDelete
+      description: Use this endpoint to delete a credential
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Credential ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Credential Delete Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Credential Delete Response
+                  value:
+                    message: Credential was deleted successfully.
+                error:
+                  summary: Credential Deletion Failure Response
+                  value:
+                    message: Credential could not be deleted.
+
+  "/credential/edit/{pid}":
+    post:
+      summary: Edit a credential
+      operationId: CredentialEdit
+      description: Use this endpoint to edit a credential
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Credential ID
+          schema:
+            type: string
+      requestBody:
+        description: Credential Edit Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CredentialCreateRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Credential Edit Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  value:
+                    message: Credential was edited successfully.
+                error:
+                  value:
+                    message: Credential could not be edited.
+
+  ## Edit a password credential
+  "/credentials/password/edit/{pid}":
+    post:
+      summary: Edit a password credential
+      operationId: CredentialPasswordEdit
+      description: Use this endpoint to edit a password credential
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Password Credential ID
+          schema:
+            type: string
+      requestBody:
+        description: Password Credential Edit Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordCredential"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Credential Edit Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Credential Edit Response
+                  value:
+                    message: Credential was edited successfully.
+                error:
+                  summary: Credential Edition Failure Response
+                  value:
+                    message: Credential could not be edited.
+
+  "/credentials/file/edit/{pid}":
+    post:
+      summary: Edit a file credential
+      operationId: CredentialFileEdit
+      description: Use this endpoint to edit a FileCredential
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: File Credential ID
+          schema:
+            type: string
+      requestBody:
+        description: File Credential Edit Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileCredential"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Credential Edit Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Credential Edit Response
+                  value:
+                    message: Credential was edited successfully.
+                error:
+                  summary: Credential Edition Failure Response
+                  value:
+                    message: Credential could not be edited.
+
+  "/credentials/featureflag/{pid}/{key}":
+    post:
+      summary: Get Feature Flag value for key
+      operationId: CredentialFeatureFlagGet
+      description: Use this endpoint to get a FeatureFlag value for a key
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Feature Flag Credential ID
+          schema:
+            type: string
+        - in: path
+          name: key
+          required: true
+          description: Feature Flag Key
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Feature Flag Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureFlag"
+              examples:
+                success:
+                  summary: Successful Credential Edit Response
+                  value:
+                    message: Credential was edited successfully.
+                error:
+                  summary: Credential Edition Failure Response
+                  value:
+                    message: Credential could not be edited.
+
+  "/credentials/featureflag/add/{pid}":
+    post:
+      summary: Add Feature Flag K:V Pairs to existing Feature Flag Credential
+      operationId: CredentialFeatureFlagAdd
+      description: Use this endpoint to add a FeatureFlag K:V Pair
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Feature Flag Credential ID
+          schema:
+            type: string
+      requestBody:
+        description: FeatureFlag Credential Edit Request
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - feature_flags
+              properties:
+                feature_flags:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/FeatureFlag"
+                    example:
+                      {
+                        "name": "Some Human Readable Feature Flag Name",
+                        "key": "Some Feature Flag Key",
+                        "value": "Some Feature Flag Value",
+                      }
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Credential Edit Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Credential Edit Response
+                  value:
+                    message: Credential was edited successfully.
+                error:
+                  summary: Credential Edition Failure Response
+                  value:
+                    message: Credential could not be edited.
+
+  "/credentials/featureflag/remove/{pid}":
+    post:
+      summary: Remove Feature Flag K:V Pairs from existing Feature Flag Credential
+      operationId: CredentialFeatureFlagRemove
+      description: Use this endpoint to remove a FeatureFlag K:V Pair
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Feature Flag Credential ID
+          schema:
+            type: string
+      requestBody:
+        description: FeatureFlag Credential Edit Request
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - feature_flags
+              properties:
+                feature_flags:
+                  type: array
+                  items:
+                    type: string
+                    description: FeatureFlag Keys to remove
+                    example: Some Feature Flag Key
+
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Credential Edit Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Credential Edit Response
+                  value:
+                    message: Credential was edited successfully.
+                error:
+                  summary: Credential Edition Failure Response
+                  value:
+                    message: Credential could not be edited.
+
+  #########################
+  #### GROUP ENDPOINTS ####
+  #########################
+  "/groups":
+    get:
+      operationId: GroupsGet
+      description: Use this endpoint to get all groups the user is a part of
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Groups Get Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Group"
+              examples:
+                success:
+                  summary: Successful Groups Get Response
+                  value:
+                    message: Groups were fetched successfully.
+                error:
+                  summary: Groups Get Failure Response
+                  value:
+                    message: Groups could not be fetched.
+
+  "/groups/{pid}":
+    get:
+      operationId: GroupGet
+      description: Use this endpoint to get a group by id
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Group ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Group Get Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+              examples:
+                success:
+                  summary: Successful Group Get Response
+                  value:
+                    message: Group was fetched successfully.
+                error:
+                  summary: Group Get Failure Response
+                  value:
+                    message: Group could not be fetched.
+
+  "/groups/create":
+    post:
+      operationId: GroupCreate
+      description: Use this endpoint to create a group
+      requestBody:
+        description: Group Creation Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupCreateRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Group Creation Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Group Creation Response
+                  value:
+                    message: Group was created successfully.
+                error:
+                  summary: Group Creation Failure Response
+                  value:
+                    message: Group could not be created.
+
+  "/groups/edit/{pid}":
+    post:
+      operationId: GroupEdit
+      description: Use this endpoint to edit a group
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Group ID
+          schema:
+            type: string
+      requestBody:
+        description: Group Edit Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupEditRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Group Edit Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Group Edit Response
+                  value:
+                    message: Group was edited successfully.
+                error:
+                  summary: Group Edition Failure Response
+                  value:
+                    message: Group could not be edited.
+
+  "/groups/delete/{pid}":
+    delete:
+      operationId: GroupDelete
+      description: Use this endpoint to delete a group
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Group ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Group Delete Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Group Delete Response
+                  value:
+                    message: Group was deleted successfully.
+                error:
+                  summary: Group Deletion Failure Response
+                  value:
+                    message: Group could not be deleted.
+
+  "/groups/add/{pid}":
+    post:
+      operationId: GroupAdd
+      description: Use this endpoint to add users to a group
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Group ID
+          schema:
+            type: string
+      requestBody:
+        description: Group Add Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupAddRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Group Add Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Group Add Response
+                  value:
+                    message: User was added to group successfully.
+                error:
+                  summary: Group Add Failure Response
+                  value:
+                    message: User could not be added to group.
+
+  "/groups/remove/{pid}":
+    post:
+      operationId: GroupRemove
+      description: Use this endpoint to remove users from a group
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Group ID
+          schema:
+            type: string
+      requestBody:
+        description: Group Remove Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupRemoveRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Group Remove Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Group Remove Response
+                  value:
+                    message: User was removed from group successfully.
+                error:
+                  summary: Group Remove Failure Response
+                  value:
+                    message: User could not be removed from group.
+
+  #################################
+  #### AUTHORIZATION ENDPOINTS ####
+  #################################
+  "/authz/permission/{pid}":
+    get:
+      operationId: AuthzGet
+      description: Use this endpoint to get authorization information by PID
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Authorization ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Authz Get Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthzPermission"
+              examples:
+                success:
+                  summary: Successful Authz Get Response
+                  value:
+                    message: Authorization was fetched successfully.
+                error:
+                  summary: Authz Get Failure Response
+                  value:
+                    message: Authorization could not be fetched.
+  "/authz/user":
+    get:
+      operationId: AuthzUserGet
+      description: Use this endpoint to get authorization information for a user
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Authz User Get Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthzUserGetResponse"
+              examples:
+                success:
+                  summary: Successful Authz User Get Response
+                  value:
+                    message: User authorization information was fetched successfully.
+                error:
+                  summary: Authz User Get Failure Response
+                  value:
+                    message: User authorization information could not be fetched.
+
+  "/authz/group/{pid}":
+    get:
+      operationId: AuthzGroupGet
+      description: Use this endpoint to get authorization information for a group
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Group ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Authz Group Get Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthzGroupGetResponse"
+              examples:
+                success:
+                  summary: Successful Authz Group Get Response
+                  value:
+                    message: Group authorization information was fetched successfully.
+                error:
+                  summary: Authz Group Get Failure Response
+                  value:
+                    message: Group authorization information could not be fetched.
+
+  "/authz/credential/{pid}":
+    get:
+      operationId: AuthzCredentialGet
+      description: Use this endpoint to get authorization information for a credential
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Credential ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Authz Credential Get Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthzCredentialGetResponse"
+              examples:
+                success:
+                  summary: Successful Authz Credential Get Response
+                  value:
+                    message: Credential authorization information was fetched successfully.
+                error:
+                  summary: Authz Credential Get Failure Response
+                  value:
+                    message: Credential authorization information could not be fetched.
+
+  "/authz/vault/{pid}":
+    get:
+      operationId: AuthzVaultGet
+      description: Use this endpoint to get authorization information for a vault
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Vault ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Authz Vault Get Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthzVaultGetResponse"
+              examples:
+                success:
+                  summary: Successful Authz Vault Get Response
+                  value:
+                    message: Vault authorization information was fetched successfully.
+                error:
+                  summary: Authz Vault Get Failure Response
+                  value:
+                    message: Vault authorization information could not be fetched.
+
+  "/authz/grant":
+    post:
+      operationId: AuthzCreate
+      description: Use this endpoint to grant an authorization
+      requestBody:
+        description: Authz Create Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthzCreateRequest"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Authz Create Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Authz Create Response
+                  value:
+                    message: Authorization was created successfully.
+                error:
+                  summary: Authz Create Failure Response
+                  value:
+                    message: Authorization could not be created.
+
+  "/authz/modify/{pid}":
+    post:
+      operationId: AuthzEdit
+      description: Use this endpoint to edit an authorization
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Authorization ID
+          schema:
+            type: string
+      requestBody:
+        description: Authz Edit Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthzPermission"
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Authz Edit Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Authz Edit Response
+                  value:
+                    message: Authorization was edited successfully.
+                error:
+                  summary: Authz Edit Failure Response
+                  value:
+                    message: Authorization could not be edited.
+
+  "/authz/revoke/{pid}":
+    delete:
+      operationId: AuthzDelete
+      description: Use this endpoint to revoke an authorization
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          description: Authorization ID
+          schema:
+            type: string
+      security:
+        - UserJWT: []
+      responses:
+        "200":
+          description: Authz Delete Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericMessageResponse"
+              examples:
+                success:
+                  summary: Successful Authz Delete Response
+                  value:
+                    message: Authorization was deleted successfully.
+                error:
+                  summary: Authz Delete Failure Response
+                  value:
+                    message: Authorization could not be deleted.
+
+components:
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - public_key
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          example: password123
+        public_key:
+          type: string
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          example: password123
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        token:
+          $ref: "#/components/schemas/AuthToken"
+
+    AuthToken:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+        - access_token_expires_in
+        - refresh_token_expires_in
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        access_token_expires_in:
+          type: integer
+          format: int64
+        user_id:
+          type: string
+          nullable: true
+          default: null
+        refresh_token_expires_in:
+          type: integer
+          format: int64
+
+    VaultCreateRequest:
+      type: object
+      required:
+        - name
+        - description
+        - public_key
+      properties:
+        name:
+          type: string
+          example: Some Vault Name
+        description:
+          type: string
+          example: Some Vault Description
+        public_key:
+          type: string
+
+    CredentialCreateRequest:
+      type: object
+      required:
+        - name
+        - credential_type
+      properties:
+        name:
+          type: string
+          example: Some Credential Name
+        credential_type:
+          type: string
+          enum: [password, file, feature_flags]
+          example: password
+        notes:
+          type: string
+          example: Some Credential Notes
+        vault_pid:
+          type: string
+          example: vault_a5009e28-e59e-4033-8c55-82ddc780fcae
+          description: PID of the vault to which the credential belongs (added to default personal vault if not specified)
+        password:
+          $ref: "#/components/schemas/PasswordCredential"
+        file:
+          $ref: "#/components/schemas/FileCredential"
+        feature_flags:
+          $ref: "#/components/schemas/FeatureFlagCredential"
+
+    PasswordCredential:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: someusername
+        password:
+          type: string
+          format: byte
+          example: password123
+        passwordStrength:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: Password strength on a scale of 1 to 5
+        expires_at:
+          type: string
+          format: date-time
+          example: 2021-10-10T12:00:00Z
+          description: Date and time at which the password expires
+        totp:
+          $ref: "#/components/schemas/TOTP"
+
+    TOTP:
+      type: object
+      required:
+        - totp_secret
+        - totp_length
+        - totp_period
+      properties:
+        totp_secret:
+          type: string
+          format: byte
+          description: Some TOTP Secret
+        totp_length:
+          type: integer
+          example: 6
+          description: Length of generated TOTP
+        totp_period:
+          type: integer
+          example: 30
+          description: TOTP period in seconds
+
+    FileCredential:
+      type: object
+      required:
+        - name
+        - file
+      properties:
+        name:
+          type: string
+          example: Some File Name
+        file:
+          type: string
+          format: byte
+          description: File upload field
+
+    FeatureFlagCredential:
+      type: object
+      required:
+        - name
+        - feature_flags
+      properties:
+        name:
+          type: string
+          example: Some Feature Flag Credential Name
+        environment:
+          type: string
+          example: Some Environment
+        feature_flags:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeatureFlag"
+            example:
+              {
+                "name": "Some Human Readable Feature Flag Name",
+                "key": "Some Feature Flag Key",
+                "value": "Some Feature Flag Value",
+              }
+
+    FeatureFlag:
+      type: object
+      required:
+        - name
+        - key
+        - value
+      properties:
+        name:
+          type: string
+          example: Some Human Readable Feature Flag Name
+        key:
+          type: string
+          example: Some Feature Flag Key
+        value:
+          type: string
+          example: Some Feature Flag Value
+
+    VaultEditRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Some Vault Name
+        description:
+          type: string
+          example: Some Vault Description
+        public_key:
+          type: string
+
+    GenericMessageResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+    Group:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Some Group Name
+        description:
+          type: string
+          example: Some Group Description
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupUser"
+            example:
+              { "id": 1, "name": "Some User Name", "email": "some@email.com" }
+
+    GroupUser:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - group_role
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Some User Name
+        email:
+          type: string
+          example: user@email.com
+        group_role:
+          type: string
+          enum: [owner, admin, editor, viewer]
+          example: admin
+
+    GroupCreateRequest:
+      type: object
+      required:
+        - name
+        - description
+        - members
+      properties:
+        name:
+          type: string
+          example: Some Group Name
+        description:
+          type: string
+          example: Some Group Description
+        members:
+          type: array
+          items:
+            $ref: "#/components/schemas/GroupCreateRequestGroupMember"
+
+    GroupCreateRequestGroupMember:
+      type: object
+      required:
+        - user_pid
+        - group_role
+      properties:
+        user_pid:
+          type: string
+          example: abcdef
+        group_role:
+          type: string
+          enum: [admin, editor, viewer]
+          example: admin
+
+    GroupEditRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Some Group Name
+        description:
+          type: string
+          example: Some Group Description
+
+    GroupAddRequest:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        group_role:
+          type: string
+          enum: [admin, editor, viewer]
+          example: admin
+
+    GroupRemoveRequest:
+      type: array
+      items:
+        type: integer
+        description: userIDs to remove from group
+        example: 1
+
+    AuthzPermission:
+      type: object
+      required:
+        - resource_pid
+        - access_level
+        - resource_type
+        - identity_pid
+        - identity_type
+      properties:
+        identity_type:
+          type: string
+          enum: [user, group]
+          example: user
+        identity_pid:
+          type: string
+          example: user_abcdef
+        authorized_keys:
+          type: array
+          items:
+            type: object
+            required:
+              - identity_pid
+              - encrypted_key
+            properties:
+              identity_pid:
+                type: string
+                example: some_key
+              encrypted_key:
+                type: string
+                description: Resource Secret Key encrypted with the user's public key
+                example: some_value
+        resource_pid:
+          type: string
+          example: 1
+        resource_type:
+          type: string
+          enum: [credential, vault, group]
+          example: credentials
+        access_level:
+          type: string
+          enum: [owner, admin, editor, viewer]
+          example: admin
+
+    AuthzUserGetResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/AuthzPermission"
+
+    AuthzGroupGetResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/AuthzPermission"
+
+    AuthzCredentialGetResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/AuthzPermission"
+
+    AuthzVaultGetResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/AuthzPermission"
+
+    AuthzCreateRequest:
+      type: array
+      items:
+        $ref: "#/components/schemas/AuthzPermission"
+
+  securitySchemes:
+    UserJWT:
+      type: apiKey
+      in: header
+      name: Authorization
