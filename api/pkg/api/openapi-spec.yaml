@@ -1403,9 +1403,11 @@ components:
     AuthzPermission:
       type: object
       required:
-        - resource_id
+        - resource_pid
         - access_level
         - resource_type
+        - identity_pid
+        - identity_type
       properties:
         identity_type:
           type: string
@@ -1413,7 +1415,22 @@ components:
           example: user
         identity_pid:
           type: string
-          example: 1
+          example: user_abcdef
+        authorized_keys:
+          type: array
+          items:
+            type: object
+            required:
+              - identity_pid
+              - encrypted_key
+            properties:
+              identity_pid:
+                type: string
+                example: some_key
+              encrypted_key:
+                type: string
+                description: Resource Secret Key encrypted with the user's public key
+                example: some_value
         resource_pid:
           type: string
           example: 1

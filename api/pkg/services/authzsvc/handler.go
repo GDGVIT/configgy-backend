@@ -1,6 +1,9 @@
 package authzsvc
 
 import (
+	"context"
+
+	"github.com/GDGVIT/configgy-backend/api/pkg/api"
 	"github.com/GDGVIT/configgy-backend/api/pkg/services/accesscontrolsvc"
 	"github.com/GDGVIT/configgy-backend/pkg/logger"
 	"github.com/GDGVIT/configgy-backend/pkg/tables"
@@ -11,6 +14,7 @@ type AuthzSvcImpl struct {
 	DB               DB
 	accessControlSvc AccessControlrSvc
 	authnSvc         AuthnSvc
+	credentialSvc    CredentialSvc
 	logger           logger.Logger
 }
 
@@ -18,6 +22,7 @@ type DB interface {
 	GetUserByPID(pid string) (*tables.Users, error)
 	GetGroupByPID(pid string) (*tables.Groups, error)
 	GetVaultByPID(pid string) (*tables.Vault, error)
+	GetUserPersonalVaultByUserPID(userPID string) (*tables.Vault, error)
 	GetCredentialByPID(pid string) (*tables.Credential, error)
 	IsUserInGroup(userID int, groupID int) (bool, error)
 
@@ -41,6 +46,10 @@ type AuthnSvc interface {
 	ValidateToken(signedToken string) error
 }
 
-func Handler(db DB, accessControlSvc AccessControlrSvc, authnSvc AuthnSvc, logger logger.Logger) *AuthzSvcImpl {
-	return &AuthzSvcImpl{DB: db, accessControlSvc: accessControlSvc, authnSvc: authnSvc, logger: logger}
+type CredentialSvc interface {
+	CredentialCreate(c context.Context, req api.CredentialCreateRequest, userPID string) (api.GenericMessageResponse, int, error)
+}
+
+func Handler(db DB, accessControlSvc AccessControlrSvc, authnSvc AuthnSvc, credentialSvc CredentialSvc, logger logger.Logger) *AuthzSvcImpl {
+	return &AuthzSvcImpl{DB: db, accessControlSvc: accessControlSvc, authnSvc: authnSvc, credentialSvc: credentialSvc, logger: logger}
 }

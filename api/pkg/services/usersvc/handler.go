@@ -28,6 +28,8 @@ type UserDb interface {
 	CreateUserVerification(userVerification *tables.UserVerification) error
 	GetUserVerificationByUserID(userID int) (*tables.UserVerification, error)
 	UpdateUserVerification(userID int, isVerified bool) error
+
+	CreateVault(vault tables.Vault, userPID string) error
 }
 
 type MessageBroker interface {

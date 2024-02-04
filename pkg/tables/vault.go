@@ -8,7 +8,7 @@ import (
 
 type Vault struct {
 	ID          int    `gorm:"column:vault_id;primaryKey;autoIncrement"`
-	PID         string `gorm:"column:vault_pid;unique;type:varchar(40)"`
+	PID         string `gorm:"column:vault_pid;unique;type:varchar(100)"`
 	Name        string `gorm:"column:vault_name;not null;type:varchar(100)"`
 	Description string `gorm:"column:vault_description;not null;type:varchar(20000)"`
 	PublicKey   []byte `gorm:"column:public_key;not null"`
@@ -39,6 +39,9 @@ func (db *DB) CreateVault(vault Vault, userPID string) error {
 	err := db.gormDB.Where("user_pid = ?", userPID).First(&user).Error
 	if err != nil {
 		return err
+	}
+	if vault.PID == "" {
+		vault.PID = UUIDWithPrefix("vault")
 	}
 	vaultCreateTx := db.gormDB.Create(&vault)
 	if vaultCreateTx.Error != nil {
@@ -118,6 +121,12 @@ func (db *DB) GetVaultByID(id int) (*Vault, error) {
 func (db *DB) GetVaultByPID(pid string) (*Vault, error) {
 	var vault Vault
 	err := db.gormDB.Where("vault_pid = ?", pid).First(&vault).Error
+	return &vault, err
+}
+
+func (db *DB) GetUserPersonalVaultByUserPID(userPID string) (*Vault, error) {
+	var vault Vault
+	err := db.gormDB.Where("is_personal = ? AND vault_name = ?", true, userPID).First(&vault).Error
 	return &vault, err
 }
 

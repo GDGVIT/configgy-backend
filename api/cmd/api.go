@@ -70,7 +70,7 @@ func RootCmd() *cobra.Command {
 			deps.Services.CredentialSvc = credentialSvc
 			groupSvc := groupsvc.Handler(db, deps.Logger, accessControlSvc, authSvc)
 			deps.Services.GroupSvc = groupSvc
-			authzSvc := authzsvc.Handler(db, accessControlSvc, authSvc, deps.Logger)
+			authzSvc := authzsvc.Handler(db, accessControlSvc, authSvc, credentialSvc, deps.Logger)
 			deps.Services.AuthzSvc = authzSvc
 
 			service, serviceErr := api.NewService(ctx, opts, deps)

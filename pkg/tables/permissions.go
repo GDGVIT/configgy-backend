@@ -33,7 +33,7 @@ const (
 
 type PermissionAssignments struct {
 	ID             int           `gorm:"column:permission_assignment_id;primaryKey;autoIncrement"`
-	PID            string        `gorm:"column:permission_assignment_pid;unique;type:varchar(40)"`
+	PID            string        `gorm:"column:permission_assignment_pid;unique;type:varchar(100)"`
 	PermissionName Permission    `gorm:"column:permission_name;not null"`
 	VaultID        int           `gorm:"column:vault_id"`
 	ResourcePID    string        `gorm:"column:resource_pid;type:varchar(40)"`
@@ -53,6 +53,9 @@ func (t *PermissionAssignments) TableName() string {
 
 // Create a new vault
 func (db *DB) CreatePermissionAssignment(permission_assignment *PermissionAssignments) *gorm.DB {
+	if permission_assignment.PID == "" {
+		permission_assignment.PID = UUIDWithPrefix("permissionassignment")
+	}
 	return db.gormDB.Create(permission_assignment)
 }
 

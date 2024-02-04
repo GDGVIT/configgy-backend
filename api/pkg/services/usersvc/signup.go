@@ -89,6 +89,23 @@ func (svc *UserSvcImpl) SignUp(c context.Context, req api.SignupRequest) (api.Ge
 		}, http.StatusInternalServerError, err
 	}
 
+	// Create user personal vault
+	vault := tables.Vault{
+		PID:        tables.UUIDWithPrefix("vault"),
+		Name:       user.PID,
+		IsPersonal: true,
+		PublicKey:  user.PublicKey,
+	}
+
+	err = svc.DB.CreateVault(vault, user.PID)
+	if err != nil {
+		message := "Failed to create user"
+		return api.GenericMessageResponse{
+			Success: false,
+			Message: &message,
+		}, http.StatusInternalServerError, err
+	}
+
 	message = "Signup successful. Please check your email for the verification link."
 	var signupResponse api.GenericMessageResponse
 	signupResponse.Message = &message

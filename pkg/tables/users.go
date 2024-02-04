@@ -17,7 +17,7 @@ func NewDB(gormDB *gorm.DB) *DB {
 
 type Users struct {
 	ID       int    `gorm:"column:user_id;primaryKey;autoIncrement"`
-	PID      string `gorm:"column:user_pid;unique;type:varchar(40)"`
+	PID      string `gorm:"column:user_pid;unique;type:varchar(100)"`
 	Name     string `gorm:"column:user_name;not null;type:varchar(100)"`
 	Email    string `gorm:"column:user_email;unique;type:varchar(100)"`
 	Password []byte `gorm:"column:user_password;not null"`

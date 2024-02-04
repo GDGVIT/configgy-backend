@@ -50,7 +50,7 @@ func (svc *AuthzSvcImpl) AuthzUserGet(ctx context.Context, UserPID string) (api.
 
 	for _, permissionAssignment := range permissionAssignments {
 		identityType := api.AuthzPermissionIdentityType(permissionAssignment.IdentityType)
-		permission := api.AuthzPermission{IdentityPid: &permissionAssignment.IdentityPID, IdentityType: &identityType, AccessLevel: api.AuthzPermissionAccessLevel(permissionAssignment.PermissionName), ResourcePid: &permissionAssignment.ResourcePID, ResourceType: api.AuthzPermissionResourceType(permissionAssignment.ResourceType)}
+		permission := api.AuthzPermission{IdentityPid: permissionAssignment.IdentityPID, IdentityType: identityType, AccessLevel: api.AuthzPermissionAccessLevel(permissionAssignment.PermissionName), ResourcePid: permissionAssignment.ResourcePID, ResourceType: api.AuthzPermissionResourceType(permissionAssignment.ResourceType)}
 		response = append(response, permission)
 	}
 
@@ -83,7 +83,7 @@ func (svc *AuthzSvcImpl) AuthzGroupGet(ctx context.Context, GroupPID string, Use
 
 	for _, permissionAssignment := range permissionAssignments {
 		identityType := api.AuthzPermissionIdentityType(permissionAssignment.IdentityType)
-		permission := api.AuthzPermission{IdentityPid: &permissionAssignment.IdentityPID, IdentityType: &identityType, AccessLevel: api.AuthzPermissionAccessLevel(permissionAssignment.PermissionName), ResourcePid: &permissionAssignment.ResourcePID, ResourceType: api.AuthzPermissionResourceType(permissionAssignment.ResourceType)}
+		permission := api.AuthzPermission{IdentityPid: permissionAssignment.IdentityPID, IdentityType: identityType, AccessLevel: api.AuthzPermissionAccessLevel(permissionAssignment.PermissionName), ResourcePid: permissionAssignment.ResourcePID, ResourceType: api.AuthzPermissionResourceType(permissionAssignment.ResourceType)}
 		response = append(response, permission)
 	}
 
@@ -114,9 +114,9 @@ func (svc *AuthzSvcImpl) AuthzVaultGet(ctx context.Context, VaultPID string, Use
 	for _, permission := range permissions {
 		authzpermission := api.AuthzPermission{
 			AccessLevel:  api.AuthzPermissionAccessLevel(permission.PermissionName),
-			IdentityPid:  &permission.IdentityPID,
-			IdentityType: (*api.AuthzPermissionIdentityType)(&permission.IdentityType),
-			ResourcePid:  &VaultPID,
+			IdentityPid:  permission.IdentityPID,
+			IdentityType: (api.AuthzPermissionIdentityType)(permission.IdentityType),
+			ResourcePid:  VaultPID,
 			ResourceType: api.AuthzPermissionResourceTypeVault,
 		}
 		response = append(response, authzpermission)
@@ -150,9 +150,9 @@ func (svc *AuthzSvcImpl) AuthzCredentialGet(ctx context.Context, CredentialPID s
 	for _, permission := range permissions {
 		authzpermission := api.AuthzPermission{
 			AccessLevel:  api.AuthzPermissionAccessLevel(permission.PermissionName),
-			IdentityPid:  &permission.IdentityPID,
-			IdentityType: (*api.AuthzPermissionIdentityType)(&permission.IdentityType),
-			ResourcePid:  &CredentialPID,
+			IdentityPid:  permission.IdentityPID,
+			IdentityType: (api.AuthzPermissionIdentityType)(permission.IdentityType),
+			ResourcePid:  CredentialPID,
 			ResourceType: api.AuthzPermissionResourceTypeCredential,
 		}
 		response = append(response, authzpermission)

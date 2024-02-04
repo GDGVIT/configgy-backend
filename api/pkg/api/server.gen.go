@@ -87,11 +87,16 @@ type AuthzGroupGetResponse = []AuthzPermission
 
 // AuthzPermission defines model for AuthzPermission.
 type AuthzPermission struct {
-	AccessLevel  AuthzPermissionAccessLevel   `json:"access_level"`
-	IdentityPid  *string                      `json:"identity_pid,omitempty"`
-	IdentityType *AuthzPermissionIdentityType `json:"identity_type,omitempty"`
-	ResourcePid  *string                      `json:"resource_pid,omitempty"`
-	ResourceType AuthzPermissionResourceType  `json:"resource_type"`
+	AccessLevel    AuthzPermissionAccessLevel `json:"access_level"`
+	AuthorizedKeys *[]struct {
+		// EncryptedKey Resource Secret Key encrypted with the user's public key
+		EncryptedKey string `json:"encrypted_key"`
+		IdentityPid  string `json:"identity_pid"`
+	} `json:"authorized_keys,omitempty"`
+	IdentityPid  string                      `json:"identity_pid"`
+	IdentityType AuthzPermissionIdentityType `json:"identity_type"`
+	ResourcePid  string                      `json:"resource_pid"`
+	ResourceType AuthzPermissionResourceType `json:"resource_type"`
 }
 
 // AuthzPermissionAccessLevel defines model for AuthzPermission.AccessLevel.

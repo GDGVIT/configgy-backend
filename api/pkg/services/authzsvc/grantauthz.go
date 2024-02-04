@@ -20,19 +20,19 @@ func (svc *AuthzSvcImpl) AuthzCreate(ctx context.Context, req api.AuthzCreateReq
 		var resourceID int
 		switch authz.ResourceType {
 		case api.AuthzPermissionResourceTypeVault:
-			vault, err := svc.DB.GetVaultByPID(*authz.ResourcePid)
+			vault, err := svc.DB.GetVaultByPID(authz.ResourcePid)
 			if err != nil {
 				return api.GenericMessageResponse{}, 0, err
 			}
 			resourceID = vault.ID
 		case api.AuthzPermissionResourceTypeGroup:
-			group, err := svc.DB.GetGroupByPID(*authz.ResourcePid)
+			group, err := svc.DB.GetGroupByPID(authz.ResourcePid)
 			if err != nil {
 				return api.GenericMessageResponse{}, 0, err
 			}
 			resourceID = group.ID
 		case api.AuthzPermissionResourceTypeCredential:
-			credential, err := svc.DB.GetCredentialByPID(*authz.ResourcePid)
+			credential, err := svc.DB.GetCredentialByPID(authz.ResourcePid)
 			if err != nil {
 				return api.GenericMessageResponse{}, 0, err
 			}
@@ -51,10 +51,10 @@ func (svc *AuthzSvcImpl) AuthzCreate(ctx context.Context, req api.AuthzCreateReq
 			PermissionName: tables.Permission(authz.AccessLevel),
 			CredentialID:   resourceID,
 			UserID:         user.ID,
-			ResourcePID:    *authz.ResourcePid,
+			ResourcePID:    authz.ResourcePid,
 			ResourceType:   tables.ResourceTypes(authz.ResourceType),
-			IdentityPID:    *authz.IdentityPid,
-			IdentityType:   tables.IdentityType(*authz.IdentityType),
+			IdentityPID:    authz.IdentityPid,
+			IdentityType:   tables.IdentityType(authz.IdentityType),
 		}
 
 		tx := svc.DB.CreatePermissionAssignment(&permissionAssignment)
@@ -62,6 +62,34 @@ func (svc *AuthzSvcImpl) AuthzCreate(ctx context.Context, req api.AuthzCreateReq
 			svc.DB.RollbackTxns(txns)
 		}
 		txns = append(txns, tx)
+		// add the encrypted keys for each user to personal vaults
+		if authz.AuthorizedKeys != nil {
+			secretKeys := *authz.AuthorizedKeys
+			for _, keySet := range secretKeys {
+				// get the user's personal vault
+				userPersonalVault, err := svc.DB.GetUserPersonalVaultByUserPID(keySet.IdentityPid)
+				if err != nil {
+					svc.DB.RollbackTxns(txns)
+					return api.GenericMessageResponse{}, 0, err
+				}
+				credCreationReq := api.CredentialCreateRequest{
+					Name:           authz.ResourcePid,
+					CredentialType: api.File,
+					File: &api.FileCredential{
+						File: []byte(keySet.EncryptedKey),
+						Name: "Encrypted key for " + authz.ResourcePid,
+					},
+					VaultPid: &userPersonalVault.PID,
+				}
+				_, _, err = svc.credentialSvc.CredentialCreate(ctx, credCreationReq, keySet.IdentityPid)
+				if err != nil {
+					svc.DB.RollbackTxns(txns)
+					return api.GenericMessageResponse{}, 0, err
+				}
+			}
+		}
+		// if the secret key isn't added to the vault, we're assuming it was shared directly somehow
 	}
+
 	return api.GenericMessageResponse{}, 0, nil
 }

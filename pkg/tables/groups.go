@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Groups struct {
 	ID          int    `gorm:"column:group_id;primaryKey;autoIncrement"`
-	PID         string `gorm:"column:group_pid;unique;type:varchar(40)"`
+	PID         string `gorm:"column:group_pid;unique;type:varchar(100)"`
 	Name        string `gorm:"column:group_name;not null"`
 	Description string `gorm:"column:group_description;not null"`
 }
@@ -16,6 +16,9 @@ func (t *Groups) TableName() string {
 // Create a new group
 func (db *DB) CreateGroup(user *Users, group *Groups, groupMembers map[string]Permission) error {
 	txns := []*gorm.DB{}
+	if group.PID == "" {
+		group.PID = UUIDWithPrefix("group")
+	}
 	tx := db.gormDB.Create(&group)
 	if tx.Error != nil {
 		return tx.Error

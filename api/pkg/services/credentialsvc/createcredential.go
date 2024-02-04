@@ -67,7 +67,7 @@ func (svc *CredentialServiceImpl) CredentialCreate(c context.Context, req api.Cr
 		createPermissionAssignmentTx.Rollback()
 		return api.GenericMessageResponse{}, 0, err
 	}
-	if req.VaultPid != nil {
+	if req.VaultPid != nil && *req.VaultPid != "" {
 		vault, err := svc.DB.GetVaultByPID(*req.VaultPid)
 		if err != nil {
 			return api.GenericMessageResponse{}, 0, err

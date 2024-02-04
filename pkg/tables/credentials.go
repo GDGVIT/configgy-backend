@@ -16,7 +16,7 @@ const (
 
 type Credential struct {
 	ID             int            `gorm:"column:credential_id;primaryKey;autoIncrement"`
-	PID            string         `gorm:"column:credential_pid;unique;type:varchar(40)"`
+	PID            string         `gorm:"column:credential_pid;unique;type:varchar(100)"`
 	CredentialName string         `gorm:"column:credential_name;not null"`
 	Notes          string         `gorm:"column:notes;not null;type:varchar(20000)"`
 	CredentialType CredentialType `gorm:"column:credential_type;not null"`
@@ -68,6 +68,9 @@ func (t *Credential) TableName() string {
 
 // Create a new credential
 func (db *DB) CreateCredential(credential *Credential) *gorm.DB {
+	if credential.PID == "" {
+		credential.PID = UUIDWithPrefix("credential")
+	}
 	return db.gormDB.Create(credential)
 }
 
